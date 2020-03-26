@@ -53,12 +53,31 @@ This function should only modify configuration layer settings."
      ;; spell-checking
      ;; syntax-checking
      version-control
+     (c-c++ :variables
+            c-c++-backend 'lsp-ccls
+            ccls-executable "/home/stianse/Software/ccls/build/ccls"
+
+            ;; disable lsp-enable-indentation, too "electric" behavior
+            ;; where also following lines are affected
+            lsp-enable-indentation nil
+            ;; Watching large projects may cause Emacs slow-down
+            lsp-enable-file-watchers nil
+
+            c-c++-enable-google-style t
+            c-c++-enable-google-newline t
+            )
+     ;; treemacs
      )
+
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '()
+   ;; To use a local version of a package, use the `:location' property:
+   ;; '(your-package :location "~/path/to/your-package/")
+   ;; Also include the dependencies as they will not be resolved automatically.
+   dotspacemacs-additional-packages '(dtrt-indent)
+
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
 
@@ -457,6 +476,17 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+
+  (defun stianse/dtrt-indent-reenable ()
+      (when (bound-and-true-p dtrt-indent-mode)
+        (dtrt-indent-mode 1)))
+
+  (spacemacs|use-package-add-hook google-c-style
+    :post-init
+    ;; Re-enable dtrt-indent-mode to overwrite google-c-style's offset. Make
+    ;; sure to append function to list of hooks so that it's called after
+    ;; google-c-style functions.
+    (add-hook 'c-mode-common-hook 'stianse/dtrt-indent-reenable t))
   )
 
 (defun dotspacemacs/user-load ()
@@ -472,6 +502,12 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+
+  ;; Try to automatically guess the indentation level
+  (use-package dtrt-indent
+    :ensure t
+    :config (spacemacs|hide-lighter dtrt-indent-mode)
+    :hook (prog-mode . dtrt-indent-mode))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
