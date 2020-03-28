@@ -65,6 +65,8 @@ This function should only modify configuration layer settings."
 
             c-c++-enable-google-style t
             c-c++-enable-google-newline t
+
+            ;; clang-format enabled manually because we use a custom hook
             )
      ;; treemacs
      )
@@ -487,6 +489,40 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
     ;; sure to append function to list of hooks so that it's called after
     ;; google-c-style functions.
     (add-hook 'c-mode-common-hook 'stianse/dtrt-indent-reenable t))
+
+  (defun stianse/clang-format-find-executable ()
+    ;; Check if the configured exe exists
+    (if (executable-find clang-format-executable)
+        clang-format-executable
+      ;; Check if the normal exe exists
+      (if (executable-find "clang-format")
+          "clang-format"
+        ;; Check if the versioned exe exist
+        (cl-loop for x downfrom 10 to 1
+                 until (executable-find (format "clang-format-%d" x))
+                 finally return (format "clang-format-%d" x)))))
+
+  (defun stianse/clang-format-before-save ()
+    "Check if file should run clang-format before save. If so,
+add buffer-local hook. The variable
+stianse/clang-format-before-save-enabled could be set using
+.dir-locals.el. Note: .dir-locals.el variables are only bound
+AFTER mode hook is run."
+    (when (locate-dominating-file buffer-file-name ".clang-format")
+      (add-hook 'before-save-hook
+                '(lambda ()
+                   (when (bound-and-true-p stianse/clang-format-before-save-enabled)
+                     (clang-format-buffer)))
+                nil 'local)))
+
+  (spacemacs|use-package-add-hook clang-format
+    :post-init
+    (add-hook 'c-mode-common-hook 'stianse/clang-format-before-save t)
+    ;; FIXME: Should find exe in config, not init. See
+    ;; https://github.com/jwiegley/use-package/issues/785
+    (setq clang-format-executable "clang-format-8")
+    :post-config
+    (setq clang-format-executable (stianse/clang-format-find-executable)))
   )
 
 (defun dotspacemacs/user-load ()
