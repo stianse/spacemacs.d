@@ -539,8 +539,8 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
-  ;; Make underscore part
-  (setq-default evil-symbol-word-search t)
+  ;; Include underscores in word motions
+  (add-hook 'prog-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
 
   ;; Try to automatically guess the indentation level
   (use-package dtrt-indent
