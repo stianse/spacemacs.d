@@ -546,6 +546,12 @@ before packages are loaded."
   ;; Include underscores in word motions
   (add-hook 'prog-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
 
+  ;; Recenter point on screen after some commands
+  (let ((after-fn (lambda (&rest _) (recenter nil))))
+    (advice-add 'evil-goto-line :after after-fn)
+    (advice-add 'evil-goto-mark :after after-fn)
+    (advice-add 'evil-goto-mark-line :after after-fn))
+
   ;; Try to automatically guess the indentation level
   (use-package dtrt-indent
     :ensure t
