@@ -45,7 +45,7 @@ This function should only modify configuration layer settings."
      helm
      lsp
      ;; markdown
-     multiple-cursors
+     (multiple-cursors :variables multiple-cursors-backend 'mc)
      ;; org
      ;; (shell :variables
      ;;        shell-default-height 30
@@ -527,6 +527,11 @@ AFTER mode hook is run."
     (setq clang-format-executable "clang-format-8")
     :post-config
     (setq clang-format-executable (stianse/clang-format-find-executable)))
+
+  (spacemacs|use-package-add-hook multiple-cursors
+    :post-init
+    ;; mc/mark-all-dwim is too useful to not have accessible
+    (global-set-key (kbd "M-s ;") 'mc/mark-all-dwim))
   )
 
 (defun dotspacemacs/user-load ()
@@ -557,4 +562,4 @@ before packages are loaded."
     :ensure t
     :config (spacemacs|hide-lighter dtrt-indent-mode)
     :hook (prog-mode . dtrt-indent-mode))
-  )
+)
