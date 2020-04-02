@@ -47,29 +47,19 @@ This function should only modify configuration layer settings."
      lsp
      ;; markdown
      (multiple-cursors :variables multiple-cursors-backend 'mc)
-     ;; org
-     ;; (shell :variables
-     ;;        shell-default-height 30
-     ;;        shell-default-position 'bottom)
-     ;; spell-checking
-     ;; syntax-checking
      version-control
      (c-c++ :variables
             c-c++-backend 'lsp-ccls
             ccls-executable "/home/stianse/Software/ccls/build/ccls"
-
             ;; disable lsp-enable-indentation, too "electric" behavior
             ;; where also following lines are affected
             lsp-enable-indentation nil
             ;; Watching large projects may cause Emacs slow-down
             lsp-enable-file-watchers nil
-
             c-c++-enable-google-style t
             c-c++-enable-google-newline t
-
             ;; clang-format enabled manually because we use a custom hook
             )
-     ;; treemacs
      gpu
      shell-scripts
      yaml
