@@ -70,6 +70,7 @@ This function should only modify configuration layer settings."
             ;; clang-format enabled manually because we use a custom hook
             )
      ;; treemacs
+     gpu
      )
 
    ;; List of additional packages that will be installed without being
