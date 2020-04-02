@@ -43,6 +43,7 @@ This function should only modify configuration layer settings."
      emacs-lisp
      (git :variables git-magit-status-fullscreen t)
      helm
+     (ibuffer :variables ibuffer-group-buffers-by 'projects)
      lsp
      ;; markdown
      (multiple-cursors :variables multiple-cursors-backend 'mc)
