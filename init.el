@@ -72,6 +72,7 @@ This function should only modify configuration layer settings."
      ;; treemacs
      gpu
      shell-scripts
+     yaml
      )
 
    ;; List of additional packages that will be installed without being
