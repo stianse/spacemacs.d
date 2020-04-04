@@ -354,7 +354,7 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil smooth scrolling (native-scrolling) is enabled. Smooth
    ;; scrolling overrides the default behavior of Emacs which recenters point
    ;; when it reaches the top or bottom of the screen. (default t)
-   dotspacemacs-smooth-scrolling t
+   dotspacemacs-smooth-scrolling nil
 
    ;; Control line numbers activation.
    ;; If set to `t', `relative' or `visual' then line numbers are enabled in all
@@ -543,15 +543,8 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
-
   ;; Include underscores in word motions
   (add-hook 'prog-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
-
-  ;; Recenter point on screen after some commands
-  (let ((after-fn (lambda (&rest _) (recenter nil))))
-    (advice-add 'evil-goto-line :after after-fn)
-    (advice-add 'evil-goto-mark :after after-fn)
-    (advice-add 'evil-goto-mark-line :after after-fn))
 
   ;; Try to automatically guess the indentation level
   (use-package dtrt-indent
