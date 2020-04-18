@@ -549,6 +549,11 @@ before packages are loaded."
   ;; Include underscores in word motions
   (add-hook 'prog-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
 
+  ;; Disable smartparens. It's more annyoing than helpful. However, it cannot be
+  ;; removed completely since some spacemacs features relies on it, so simply
+  ;; remove the hook.
+  (remove-hook 'prog-mode-hook #'smartparens-mode)
+
   ;; Try to automatically guess the indentation level
   (use-package dtrt-indent
     :ensure t
