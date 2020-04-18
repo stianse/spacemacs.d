@@ -479,6 +479,9 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (setq custom-file (concat dotspacemacs-directory "custom.el"))
   (load custom-file 'noerror)
 
+  ;; Display current function in mode-line
+  (which-function-mode 1)
+
   (defun stianse/dtrt-indent-reenable ()
       (when (bound-and-true-p dtrt-indent-mode)
         (dtrt-indent-mode 1)))
