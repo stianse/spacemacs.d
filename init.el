@@ -44,18 +44,21 @@ This function should only modify configuration layer settings."
      (git :variables git-magit-status-fullscreen t)
      helm
      (ibuffer :variables ibuffer-group-buffers-by 'projects)
-     lsp
+     (lsp :variables
+          ;; stop formatting while I type
+          lsp-enable-on-type-formatting nil
+          ;; disable lsp-enable-indentation, too "electric" behavior
+          ;; where also following lines are affected
+          lsp-enable-indentation nil
+          ;; watching large projects may cause Emacs slow-down
+          lsp-enable-file-watchers nil
+          )
      ;; markdown
      (multiple-cursors :variables multiple-cursors-backend 'mc)
      version-control
      (c-c++ :variables
             c-c++-backend 'lsp-ccls
             ccls-executable "/home/stianse/Software/ccls/build/ccls"
-            ;; disable lsp-enable-indentation, too "electric" behavior
-            ;; where also following lines are affected
-            lsp-enable-indentation nil
-            ;; Watching large projects may cause Emacs slow-down
-            lsp-enable-file-watchers nil
             c-c++-enable-google-style t
             c-c++-enable-google-newline t
             ;; clang-format enabled manually because we use a custom hook
