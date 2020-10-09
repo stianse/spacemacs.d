@@ -482,6 +482,8 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (setq custom-file (concat dotspacemacs-directory "custom.el"))
   (load custom-file 'noerror)
 
+  ;; Disable icons in dired. Added to hook even if treemacs layer isn't enabled?!
+  (setq treemacs-use-icons-dired nil)
 
   (defun stianse/dtrt-indent-reenable ()
       (when (bound-and-true-p dtrt-indent-mode)
