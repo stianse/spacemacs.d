@@ -217,7 +217,7 @@ It should only modify the values of Spacemacs settings."
    ;; refer to the DOCUMENTATION.org for more info on how to create your own
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
-   dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
+   dotspacemacs-mode-line-theme '(spacemacs :separator slant :separator-scale 1.5)
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
@@ -482,8 +482,6 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (setq custom-file (concat dotspacemacs-directory "custom.el"))
   (load custom-file 'noerror)
 
-  ;; Display current function in mode-line
-  (which-function-mode 1)
 
   (defun stianse/dtrt-indent-reenable ()
       (when (bound-and-true-p dtrt-indent-mode)
@@ -549,6 +547,14 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+
+  ;; Clean up the mode-line
+  (spaceline-toggle-purpose-off) ;; Don't actively use window-purpose
+  (spaceline-toggle-hud-off) ;; Redundant, prefer percentage only
+
+  ;; Add current function to mode-line
+  (which-function-mode 1)
+
   ;; Include underscores in word motions
   (add-hook 'prog-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
 
