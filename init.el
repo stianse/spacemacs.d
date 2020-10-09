@@ -32,14 +32,15 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
+   '(javascript
+     python
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
-     ;; auto-completion
      better-defaults
+     (cmake :variables cmake-enable-cmake-ide-support t)
      emacs-lisp
      (git :variables git-magit-status-fullscreen t)
      helm
@@ -570,6 +571,12 @@ before packages are loaded."
     :ensure t
     :config (spacemacs|hide-lighter dtrt-indent-mode)
     :hook (prog-mode . dtrt-indent-mode))
+
+  (spacemacs|define-jump-handlers java-mode dump-jump-go)
+
+  ;; Associate some additional files/extensions with specific modes
+  (add-to-list 'auto-mode-alist '("Android\\.bp$" . javascript-mode))
+
   ;; (setq
   ;;  evil-want-fine-undo nil)
 
