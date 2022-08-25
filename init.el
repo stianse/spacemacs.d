@@ -56,6 +56,7 @@ This function should only modify configuration layer settings."
      gpu
      shell-scripts
      yaml
+     csv
      )
 
    ;; List of additional packages that will be installed without being wrapped
