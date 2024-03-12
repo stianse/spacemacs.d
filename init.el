@@ -608,6 +608,9 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
+  ;; Re-assing to something else than "fd", which is super annoying
+  (setq-default evil-escape-key-sequence ".,")
+
   ;; Clean up the mode-line
   (spaceline-toggle-purpose-off) ;; Don't actively use window-purpose
   (spaceline-toggle-hud-off) ;; Redundant, prefer percentage only
