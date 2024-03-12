@@ -562,7 +562,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
       (if (executable-find "clang-format")
           "clang-format"
         ;; Check if the versioned exe exist
-        (cl-loop for x downfrom 10 to 1
+        (cl-loop for x downfrom 20 to 1
                  until (executable-find (format "clang-format-%d" x))
                  finally return (format "clang-format-%d" x)))))
 
@@ -584,7 +584,7 @@ AFTER mode hook is run."
     (add-hook 'c-mode-common-hook 'stianse/clang-format-before-save t)
     ;; FIXME: Should find exe in config, not init. See
     ;; https://github.com/jwiegley/use-package/issues/785
-    (setq clang-format-executable "clang-format-8")
+    (setq clang-format-executable "clang-format")
     :post-config
     (setq clang-format-executable (stianse/clang-format-find-executable)))
 
