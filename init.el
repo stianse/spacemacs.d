@@ -47,6 +47,9 @@ This function should only modify configuration layer settings."
      helm
      (ibuffer :variables ibuffer-group-buffers-by 'projects)
      (multiple-cursors :variables multiple-cursors-backend 'mc)
+     (org :variables
+          org-adapt-indentation t
+          org-log-done nil)
      version-control
      (c-c++ :variables
             c-c++-enable-google-style t
