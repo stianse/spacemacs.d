@@ -41,7 +41,7 @@ This function should only modify configuration layer settings."
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
      better-defaults
-     (cmake :variables cmake-enable-cmake-ide-support t)
+     ;; (cmake :variables cmake-enable-cmake-ide-support t)
      emacs-lisp
      (git :variables git-magit-status-fullscreen t)
      helm
