@@ -60,6 +60,7 @@ This function should only modify configuration layer settings."
      shell-scripts
      yaml
      csv
+     kotlin
      )
 
    ;; List of additional packages that will be installed without being wrapped
