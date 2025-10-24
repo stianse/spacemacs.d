@@ -44,7 +44,7 @@ This function should only modify configuration layer settings."
      ;; (cmake :variables cmake-enable-cmake-ide-support t)
      emacs-lisp
      (git :variables git-magit-status-fullscreen t)
-     helm
+     compleseus
      (ibuffer :variables ibuffer-group-buffers-by 'projects)
      (multiple-cursors :variables multiple-cursors-backend 'mc)
      (org :variables
