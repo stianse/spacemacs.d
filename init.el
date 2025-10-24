@@ -670,4 +670,18 @@ before packages are loaded."
     (let ((buffer-backed-up nil))
       (backup-buffer)))
   (add-hook 'before-save-hook  'force-backup-of-buffer)
-)
+
+  (defun stianse/consult-ripgrep (&optional arg)
+    "Call `consult-ripgrep` scoped to current buffer by default.
+With single prefix ARG (C-u), prompt for files or dirs to search.
+With double prefix ARG (C-u C-u), fallback to default behavior (project or directory)."
+    (interactive "P")
+    (pcase arg
+      ;; Double prefix (C-u C-u): fallback to default project behavior
+      (`(16) (consult-ripgrep))
+      ;; Single prefix (C-u): interactive file/dir selection
+      (`(4) (call-interactively #'consult-ripgrep))
+      ;; No prefix: search only in current file
+      (_ (consult-ripgrep
+          (list (buffer-file-name))))))
+  (global-set-key (kbd "M-s r") #'stianse/consult-ripgrep)
