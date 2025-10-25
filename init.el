@@ -551,8 +551,8 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (setq treemacs-use-icons-dired nil)
 
   (defun stianse/dtrt-indent-reenable ()
-      (when (bound-and-true-p dtrt-indent-mode)
-        (dtrt-indent-mode 1)))
+    (when (bound-and-true-p dtrt-indent-mode)
+      (dtrt-indent-mode 1)))
 
   (spacemacs|use-package-add-hook google-c-style
     :post-init
