@@ -538,6 +538,11 @@ configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
+  ;; If the file is large, don't prompt me, just open the file literally.
+  ;; Disable other thresholds which triggers the prompt
+  (setq large-file-warning-threshold nil
+        dotspacemacs-large-file-size 1000)
+
   ;; Set custom-file in order to avoid spacemacs to clutter this file
   (setq custom-file (concat dotspacemacs-directory "custom.el"))
   (load custom-file 'noerror)
@@ -685,3 +690,39 @@ With double prefix ARG (C-u C-u), fallback to default behavior (project or direc
       (_ (consult-ripgrep
           (list (buffer-file-name))))))
   (global-set-key (kbd "M-s r") #'stianse/consult-ripgrep)
+
+  (defvar my/find-file-literally--in-advice nil)
+  (defun my/find-file-literally-around (orig-fun filename &rest args)
+    "Around-advice to avoid prompt when opening large files. Just open them
+literally. Uses a re-entry guard to avoid recursive calls when
+`find-file-literally' (or other internals) end up calling back into
+advised functions."
+    (if my/find-file-literally--in-advice
+        ;; If we're re-entered, call the original function to avoid loops.
+        (apply orig-fun filename args)
+      (let ((my/find-file-literally--in-advice t))
+        (unwind-protect
+            (let ((fn (cond
+                       ((stringp filename) filename)
+                       ((and (consp filename) (stringp (car filename))) (car filename))
+                       ((and (vectorp filename) (> (length filename) 0) (stringp (aref filename 0)))
+                        (aref filename 0))
+                       (t filename))))
+              (if (and (stringp fn) (file-regular-p fn))
+                  (let ((size (nth 7 (file-attributes fn nil))))
+                    (if (and size (> size (* 1 1024 1024))) ;; 1 MB threshold
+                        (progn
+                          (message "File appears large; opening literally: %s" fn)
+                          (find-file-literally fn))
+                      (apply orig-fun filename args)))
+                ;; Fallback for non-regular files / non-strings
+                (apply orig-fun filename args)))
+          ;; ensure the guard is cleared even on error
+          (setq my/find-file-literally--in-advice nil)))))
+
+  ;; Install the advice (eval this after defining the function)
+  (advice-add 'find-file-noselect :around #'my/find-file-literally-around)
+  (advice-add 'find-file :around #'my/find-file-literally-around)
+  (advice-add 'find-file-other-window :around #'my/find-file-literally-around)
+  (advice-add 'find-file-other-frame :around #'my/find-file-literally-around)
+
