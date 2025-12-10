@@ -1,6 +1,7 @@
 (setq org-agenda-files '("~/Dropbox/gtd/inbox.org"
                          "~/Dropbox/gtd/gtd.org"
-                         "~/Dropbox/gtd/tickler.org"))
+                         "~/Dropbox/gtd/tickler.org"
+                         "~/Dropbox/gtd/gcal.org"))
 
 (setq org-capture-templates '(("t" "Todo [inbox]" entry
                                (file+headline "~/Dropbox/gtd/inbox.org" "Tasks")
@@ -23,13 +24,17 @@
       '(("i" "Inbox" todo ""
          ((org-agenda-files '("~/Dropbox/gtd/inbox.org"))
           (org-agenda-overriding-header "Inbox items")))
-        ("w" "Work" tags-todo "@work"
-         ((org-agenda-overriding-header "Work")
-          (org-agenda-prefix-format "%-32:(my/org-agenda-format-parent 30)")
-          (org-agenda-todo-keyword-format "%-4s")
-          (org-agenda-skip-function #'my/org-agenda-skip-all-siblings-but-first)
-          (org-agenda-sorting-strategy '(user-defined-down))
-          (org-agenda-cmp-user-defined #'my/org-agenda-cmp-parent-priority)))
+        ("w" "Work"
+         ((agenda ""
+                  ((org-agenda-span 2)
+                   (org-agenda-use-time-grid nil)))
+          (tags-todo "@work"
+                     ((org-agenda-overriding-header "Work")
+                      (org-agenda-prefix-format "%-32:(my/org-agenda-format-parent 30)")
+                      (org-agenda-todo-keyword-format "%-4s")
+                      (org-agenda-skip-function #'my/org-agenda-skip-all-siblings-but-first)
+                      (org-agenda-sorting-strategy '(user-defined-down))
+                      (org-agenda-cmp-user-defined #'my/org-agenda-cmp-parent-priority)))))
         ("o" "Office only" tags-todo "@office"
          ((org-agenda-overriding-header "Office")
           (org-agenda-prefix-format "%-32:(my/org-agenda-format-parent 30)")
