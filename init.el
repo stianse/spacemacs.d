@@ -652,7 +652,6 @@ before packages are loaded."
 
   ;; Try to automatically guess the indentation level
   (use-package dtrt-indent
-    :ensure t
     :config (spacemacs|hide-lighter dtrt-indent-mode)
     :hook (prog-mode . dtrt-indent-mode))
 
