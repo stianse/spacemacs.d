@@ -71,7 +71,13 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(dtrt-indent git-link catppuccin-theme)
+   dotspacemacs-additional-packages '(
+                                      cape
+                                      catppuccin-theme
+                                      corfu
+                                      dtrt-indent
+                                      git-link
+                                      )
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -634,6 +640,15 @@ before packages are loaded."
   ;; removed completely since some spacemacs features relies on it, so simply
   ;; remove the hook.
   (remove-hook 'prog-mode-hook #'smartparens-mode)
+
+  ;; auto-complete using corfu and cape
+  (use-package corfu
+    :custom
+    (global-corfu-mode 1))
+
+  (use-package cape
+    :bind (("C-c C-n" . cape-prefix-map)
+           ("M-/" . cape-dabbrev)))
 
   ;; Try to automatically guess the indentation level
   (use-package dtrt-indent
