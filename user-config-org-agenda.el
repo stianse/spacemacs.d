@@ -27,7 +27,7 @@
                       (org-agenda-prefix-format "%-32:(my/org-agenda-format-parent 30)")
                       (org-agenda-todo-keyword-format "%-4s")
                       (org-agenda-hide-tags-regexp (regexp-opt '("project" "@work")))
-                      (org-agenda-skip-function #'my/org-agenda-skip-all-siblings-but-first)
+                      (org-agenda-skip-function #'my/org-agenda-skip-function-keep-next-or-first-todo)
                       (org-agenda-sorting-strategy '(user-defined-down))
                       (org-agenda-cmp-user-defined #'my/org-agenda-cmp-parent-priority)))
           (tags-todo "-project+@work"
@@ -53,7 +53,7 @@
                       (org-agenda-prefix-format "%-32:(my/org-agenda-format-parent 30)")
                       (org-agenda-todo-keyword-format "%-4s")
                       (org-agenda-hide-tags-regexp (regexp-opt '("project" "@home")))
-                      (org-agenda-skip-function #'my/org-agenda-skip-all-siblings-but-first)
+                      (org-agenda-skip-function #'my/org-agenda-skip-function-keep-next-or-first-todo)
                       (org-agenda-sorting-strategy '(user-defined-down))
                       (org-agenda-cmp-user-defined #'my/org-agenda-cmp-parent-priority)))
           (tags-todo "-project-@work"
@@ -70,22 +70,6 @@
                  (org-use-tag-inheritance nil)))))
         ("u" "Untagged tasks" tags-todo "-{.*}")
         ))
-
-(defun my/org-agenda-skip-all-siblings-but-first ()
-  "Skip all but the first non-done entry."
-  (let (should-skip-entry)
-    (unless (my/org-current-is-todo)
-      (setq should-skip-entry t))
-    (save-excursion
-      (while (and (not should-skip-entry) (org-goto-sibling t))
-        (when (my/org-current-is-todo)
-          (setq should-skip-entry t))))
-    (when should-skip-entry
-      (or (outline-next-heading)
-          (goto-char (point-max))))))
-
-(defun my/org-current-is-todo ()
-  (string= "TODO" (org-get-todo-state)))
 
 (defun my/org-agenda-format-parent (n)
   ;; (s-truncate n (org-format-outline-path (org-get-outline-path)))
@@ -138,3 +122,50 @@ Used in org-agenda-sorting-strategy 'user-defined-down."
              (cond ((> task-prio-a task-prio-b) +1)
                    ((< task-prio-a task-prio-b) -1)
                    (t nil)))))))
+
+(defun my/org-agenda-skip-function-keep-next-or-first-todo ()
+  "Show all NEXT items. If no NEXT items, show only the first TODO item.
+Skip entry if it's not a NEXT item, or if it is a TODO item but there are NEXT items in the subtree siblings, or if it is a TODO item and there is a previous TODO item."
+  (let ((state (org-get-todo-state))
+        (should-skip nil))
+    (cond
+     ((string= "NEXT" state)
+      ;; Always show NEXT
+      (setq should-skip nil))
+
+     ((string= "TODO" state)
+      ;; It is a TODO. We skip if:
+      ;; 1. Any sibling is NEXT
+      ;; 2. OR, no sibling is NEXT, but a previous sibling is TODO
+
+      (let ((has-next-sibling nil)
+            (has-prev-todo-sibling nil))
+
+        ;; Check siblings for NEXT
+        (save-excursion
+          (org-back-to-heading t)
+          ;; Check previous siblings
+          (while (and (not has-next-sibling) (org-goto-sibling t))
+            (let ((sibling-state (org-get-todo-state)))
+              (when (string= "NEXT" sibling-state)
+                (setq has-next-sibling t))
+              (when (string= "TODO" sibling-state)
+                (setq has-prev-todo-sibling t))))
+
+          ;; Check next siblings (only for NEXT check, we don't care about subsequent TODOs)
+          (unless has-next-sibling
+            (org-back-to-heading t)
+            (while (and (not has-next-sibling) (org-goto-sibling))
+              (when (string= "NEXT" (org-get-todo-state))
+                (setq has-next-sibling t)))))
+
+        (if has-next-sibling
+            (setq should-skip t)
+          (if has-prev-todo-sibling
+              (setq should-skip t)))))
+
+     (t (setq should-skip t)))
+
+    (when should-skip
+      (or (outline-next-heading)
+          (goto-char (point-max))))))
