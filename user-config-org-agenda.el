@@ -25,7 +25,7 @@
                    (org-agenda-remove-tags t)))
           (tags-todo "+project+@work"
                      ((org-agenda-overriding-header "Next for projects")
-                      (org-agenda-prefix-format "%-32:(my/org-agenda-format-parent 30)")
+                      (org-agenda-prefix-format "%-42:(my/org-agenda-format-parent 40)")
                       (org-agenda-todo-keyword-format "%-4s")
                       (org-agenda-hide-tags-regexp (regexp-opt '("project" "@work")))
                       (org-agenda-skip-function #'my/org-agenda-skip-function-keep-next-or-first-todo)
@@ -40,7 +40,7 @@
           ))
         ("o" "Office only" tags-todo "@office"
          ((org-agenda-overriding-header "Office")
-          (org-agenda-prefix-format "%-32:(my/org-agenda-format-parent 30)")
+          (org-agenda-prefix-format "%-42:(my/org-agenda-format-parent 40)")
           (org-agenda-todo-keyword-format "%-4s")))
         ("W" "Non-work"
          ((agenda ""
@@ -51,7 +51,7 @@
                    (org-agenda-remove-tags t)))
           (tags-todo "+project-@work"
                      ((org-agenda-overriding-header "Next for projects")
-                      (org-agenda-prefix-format "%-32:(my/org-agenda-format-parent 30)")
+                      (org-agenda-prefix-format "%-42:(my/org-agenda-format-parent 40)")
                       (org-agenda-todo-keyword-format "%-4s")
                       (org-agenda-hide-tags-regexp (regexp-opt '("project" "@home")))
                       (org-agenda-skip-function #'my/org-agenda-skip-function-keep-next-or-first-todo)
