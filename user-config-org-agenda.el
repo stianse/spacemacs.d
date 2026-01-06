@@ -13,7 +13,8 @@
 
 (setq org-agenda-custom-commands
       '(("i" "Inbox" tags "-DONE- | -CANCELED-" ;; trick for a special catch all (with and without a todo state)
-         ((org-agenda-files '("~/Dropbox/gtd/inbox.org"))
+         ((org-agenda-files '("~/Dropbox/gtd/inbox.org"
+                              "~/Dropbox/gtd/inbox-phone.org"))
           (org-agenda-overriding-header "Inbox items")))
         ("w" "Work"
          ((agenda ""
