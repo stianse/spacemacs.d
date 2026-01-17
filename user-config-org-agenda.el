@@ -5,6 +5,8 @@
                                (file+headline "~/Dropbox/gtd/inbox.org" "Tasks")
                                "* TODO %i%?")))
 
+(add-hook 'org-capture-mode-hook 'evil-insert-state)
+
 (setq org-refile-targets '(("~/Dropbox/gtd/gtd.org" :maxlevel . 3)
                            ("~/Dropbox/gtd/someday.org" :level . 1)))
 
