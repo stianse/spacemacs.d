@@ -23,6 +23,10 @@
                    (org-agenda-use-time-grid nil)
                    (org-agenda-prefix-format "  %?-12t% s")
                    (org-agenda-remove-tags t)))
+          ;; For time critical tasks, show for all contexts (both work and private)
+          (tags-todo "+SCHEDULED<=\"<today>\"|+DEADLINE<=\"<+14d>\""
+                     ((org-agenda-overriding-header "Scheduled and deadlines")
+                      (org-agenda-todo-keyword-format "%-4s")))
           (tags-todo "+project+@work"
                      ((org-agenda-overriding-header "Next for projects")
                       (org-agenda-prefix-format "%-42:(my/org-agenda-format-parent 40)")
@@ -49,6 +53,10 @@
                    (org-agenda-use-time-grid nil)
                    (org-agenda-prefix-format "  %?-12t% s")
                    (org-agenda-remove-tags t)))
+          ;; For time critical tasks, show for all contexts (both work and private)
+          (tags-todo "+SCHEDULED<=\"<today>\"|+DEADLINE<=\"<+14d>\""
+                     ((org-agenda-overriding-header "Scheduled and deadlines")
+                      (org-agenda-todo-keyword-format "%-4s")))
           (tags-todo "+project-@work"
                      ((org-agenda-overriding-header "Next for projects")
                       (org-agenda-prefix-format "%-42:(my/org-agenda-format-parent 40)")
