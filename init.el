@@ -710,6 +710,16 @@ With double prefix ARG (C-u C-u), fallback to default behavior (project or direc
           (list (buffer-file-name))))))
   (global-set-key (kbd "M-s r") #'stianse/consult-ripgrep)
 
+  (defun stianse/open-jira-at-point ()
+    "Open JIRA ticket at point in external browser.
+Uses `thing-at-point` with 'symbol to capture hyphenated words (e.g., PROJ-123)."
+    (interactive)
+    (let ((jira-url-prefix "https://neatframe.atlassian.net/browse/")
+          (ticket (thing-at-point 'symbol t)))
+      (if ticket
+          (browse-url (concat jira-url-prefix ticket))
+        (user-error "No word at point"))))
+
   (defvar my/find-file-literally--in-advice nil)
   (defun my/find-file-literally-around (orig-fun filename &rest args)
     "Around-advice to avoid prompt when opening large files. Just open them
