@@ -39,7 +39,7 @@
                       (org-agenda-skip-function #'my/org-agenda-skip-function-keep-next-or-first-todo)
                       (org-agenda-sorting-strategy '(user-defined-down))
                       (org-agenda-cmp-user-defined #'my/org-agenda-cmp-parent-priority)))
-          (tags-todo "-project+@work"
+          (tags-todo "-project+@work-SCHEDULED={.+}-DEADLINE={.+}"
                      ((org-agenda-overriding-header "Next single actions")
                       (org-agenda-todo-keyword-format "%-4s")
                       (org-agenda-hide-tags-regexp (regexp-opt '("@work")))
@@ -69,7 +69,7 @@
                       (org-agenda-skip-function #'my/org-agenda-skip-function-keep-next-or-first-todo)
                       (org-agenda-sorting-strategy '(user-defined-down))
                       (org-agenda-cmp-user-defined #'my/org-agenda-cmp-parent-priority)))
-          (tags-todo "-project-@work"
+          (tags-todo "-project-@work-SCHEDULED={.+}-DEADLINE={.+}"
                      ((org-agenda-overriding-header "Next single actions")
                       (org-agenda-todo-keyword-format "%-4s")
                       (org-agenda-hide-tags-regexp (regexp-opt '("@home")))
