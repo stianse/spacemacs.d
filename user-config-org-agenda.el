@@ -32,6 +32,7 @@
           ;; For time critical tasks, show for all contexts (both work and private)
           (tags-todo "+SCHEDULED<=\"<today>\"|+DEADLINE={.+}"
                      ((org-agenda-overriding-header "Scheduled and deadlines")
+                      (org-agenda-prefix-format " %-12:(my/org-agenda-format-scheduled-deadline)")
                       (org-agenda-todo-keyword-format "%-4s")
                       (org-deadline-warning-days 14) ;; default, if no per-task warning time is set
                       (org-agenda-skip-function #'my/org-agenda-skip-deadline-if-not-in-warning-period)))
@@ -64,6 +65,7 @@
           ;; For time critical tasks, show for all contexts (both work and private)
           (tags-todo "+SCHEDULED<=\"<today>\"|+DEADLINE={.+}"
                      ((org-agenda-overriding-header "Scheduled and deadlines")
+                      (org-agenda-prefix-format " %-12:(my/org-agenda-format-scheduled-deadline)")
                       (org-agenda-todo-keyword-format "%-4s")
                       (org-deadline-warning-days 14) ;; default, if no per-task warning time is set
                       (org-agenda-skip-function #'my/org-agenda-skip-deadline-if-not-in-warning-period)))
@@ -258,6 +260,22 @@ PARENT-WIDTH is the max width for the parent name."
     (if days
         (format "%3dd  %s" days parent)
       (format "  ?  %s" parent))))
+
+(defun my/org-agenda-format-scheduled-deadline ()
+  "Format the scheduled or deadline date for agenda prefix.
+Shows 'S:' for scheduled or 'D:' for deadline, followed by relative days."
+  (let ((scheduled (org-entry-get nil "SCHEDULED"))
+        (deadline (org-entry-get nil "DEADLINE")))
+    (cond
+     (scheduled
+      (let* ((date-day (time-to-days (org-time-string-to-time scheduled)))
+             (diff (- (org-today) date-day)))
+        (format "S: %+3dd" diff)))
+     (deadline
+      (let* ((date-day (time-to-days (org-time-string-to-time deadline)))
+             (diff (- (org-today) date-day)))
+        (format "D: %+3dd" diff)))
+     (t ""))))
 
 (defun my/org-agenda-skip-deadline-if-not-in-warning-period ()
   "Skip deadline entries if their warning period hasn't started yet.
