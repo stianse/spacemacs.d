@@ -6,8 +6,9 @@
                                "* TODO %i%?")))
 
 (add-hook 'org-capture-mode-hook 'evil-insert-state)
-(setq org-refile-targets '(("~/Dropbox/gtd/gtd.org" :maxlevel . 3)
-                           ("~/Dropbox/gtd/someday.org" :level . 1)))
+(setq org-refile-targets '(("~/Dropbox/gtd/gtd.org" :maxlevel . 2)
+                           ("~/Dropbox/gtd/someday.org" :level . 1)
+                           ("~/Dropbox/gtd/tickler.org" :level . 1)))
 
 ;; Record time of todo-state changes in LOGBOOK
 (setq org-log-into-drawer t)
