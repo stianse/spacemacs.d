@@ -29,9 +29,11 @@
                    (org-agenda-prefix-format "  %?-12t% s")
                    (org-agenda-remove-tags t)))
           ;; For time critical tasks, show for all contexts (both work and private)
-          (tags-todo "+SCHEDULED<=\"<today>\"|+DEADLINE<=\"<+14d>\""
+          (tags-todo "+SCHEDULED<=\"<today>\"|+DEADLINE={.+}"
                      ((org-agenda-overriding-header "Scheduled and deadlines")
-                      (org-agenda-todo-keyword-format "%-4s")))
+                      (org-agenda-todo-keyword-format "%-4s")
+                      (org-deadline-warning-days 14) ;; default, if no per-task warning time is set
+                      (org-agenda-skip-function #'my/org-agenda-skip-deadline-if-not-in-warning-period)))
           (tags-todo "+project+@work"
                      ((org-agenda-overriding-header "Next for projects")
                       (org-agenda-prefix-format "%-42:(my/org-agenda-format-parent 40)")
@@ -59,9 +61,11 @@
                    (org-agenda-prefix-format "  %?-12t% s")
                    (org-agenda-remove-tags t)))
           ;; For time critical tasks, show for all contexts (both work and private)
-          (tags-todo "+SCHEDULED<=\"<today>\"|+DEADLINE<=\"<+14d>\""
+          (tags-todo "+SCHEDULED<=\"<today>\"|+DEADLINE={.+}"
                      ((org-agenda-overriding-header "Scheduled and deadlines")
-                      (org-agenda-todo-keyword-format "%-4s")))
+                      (org-agenda-todo-keyword-format "%-4s")
+                      (org-deadline-warning-days 14) ;; default, if no per-task warning time is set
+                      (org-agenda-skip-function #'my/org-agenda-skip-deadline-if-not-in-warning-period)))
           (tags-todo "+project-@work"
                      ((org-agenda-overriding-header "Next for projects")
                       (org-agenda-prefix-format "%-42:(my/org-agenda-format-parent 40)")
@@ -253,3 +257,21 @@ PARENT-WIDTH is the max width for the parent name."
     (if days
         (format "%3dd  %s" days parent)
       (format "  ?  %s" parent))))
+
+(defun my/org-agenda-skip-deadline-if-not-in-warning-period ()
+  "Skip deadline entries if their warning period hasn't started yet.
+Respects per-task warning days (e.g., -1d in DEADLINE). Falls back to
+`org-deadline-warning-days' if no per-task warning is specified.
+Does not skip scheduled items."
+  (let ((deadline-str (org-entry-get nil "DEADLINE")))
+    (when deadline-str
+      (let* ((deadline-time (org-time-string-to-time deadline-str))
+             (today (org-today))
+             (deadline-day (time-to-days deadline-time))
+             (days-until (- deadline-day today))
+             ;; Parse per-task warning days from deadline string (e.g., "-1d")
+             (warning-days (if (string-match "-\\([0-9]+\\)d" deadline-str)
+                               (string-to-number (match-string 1 deadline-str))
+                             org-deadline-warning-days)))
+        (when (> days-until warning-days)
+          (org-end-of-subtree t))))))
