@@ -4,17 +4,41 @@
                          "~/Dropbox/gtd/gtd.org"
                          "~/Dropbox/gtd/tickler.org"))
 
-(setq org-capture-templates '(("t" "Todo [inbox]" entry
-                               (file+headline "~/Dropbox/gtd/inbox.org" "Tasks")
-                               "* TODO %i%?")))
 
-(add-hook 'org-capture-mode-hook 'evil-insert-state)
 (setq org-refile-targets '(("~/Dropbox/gtd/gtd.org" :maxlevel . 2)
                            ("~/Dropbox/gtd/someday.org" :level . 1)
                            ("~/Dropbox/gtd/tickler.org" :level . 1)))
 
 ;; Record time of todo-state changes in LOGBOOK
 (setq org-log-into-drawer t)
+;; Also the first TODO state should be timestamp. Remember to use C-c C-t to insert it.
+(setq org-treat-insert-todo-heading-as-state-change t)
+
+;; Capture
+(setq org-capture-templates '(("t" "Todo [inbox]" entry
+                               (file+headline "~/Dropbox/gtd/inbox.org" "Tasks")
+                               "* TODO %?")))
+
+(defun my/org-capture-add-created-logbook ()
+  "Add a LOGBOOK entry for the initial TODO state during capture.
+Uses `org-log-beginning' to find/create the LOGBOOK drawer and
+`org-time-stamp-format' for the timestamp format."
+  (when (and (derived-mode-p 'org-mode)
+             (string= "TODO" (org-get-todo-state)))
+    (save-excursion
+      (org-back-to-heading t)
+      (goto-char (org-log-beginning t))
+      (let ((ind (save-excursion
+                   (forward-line -1)
+                   (current-indentation))))
+        (insert (make-string ind ?\s)
+                (format "- State %-12s from %-12s %s\n"
+                        "\"TODO\""
+                        ""
+                        (format-time-string (org-time-stamp-format 'long 'inactive))))))))
+
+(add-hook 'org-capture-before-finalize-hook #'my/org-capture-add-created-logbook)
+(add-hook 'org-capture-mode-hook 'evil-insert-state)
 
 ;; Fetch tags completation from all agenda files
 (setq org-complete-tags-always-offer-all-agenda-tags t)
