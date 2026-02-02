@@ -231,70 +231,6 @@ Skip entry if it's not a NEXT item, or if it is a TODO item but there are NEXT i
       (or (outline-next-heading)
           (goto-char (point-max))))))
 
-(defconst my/org-wait-state-timestamp-regexp
-  "^[ \t]*- State \"WAIT\".*\\[\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}\\( [A-Za-z]+\\.?\\)?\\( [0-9:]+\\)?\\)\\]"
-  "Regexp matching LOGBOOK entry for WAIT state change. Group 1 captures the timestamp.")
-
-(defun my/org-get-wait-timestamp (marker)
-  "Go to the marker and extract the timestamp when task entered WAIT state.
-Searches the LOGBOOK drawer for a state change line matching 'State \"WAIT\"'.
-Returns the timestamp as a time value, or nil if not found."
-  (if (not marker)
-      nil
-    (with-current-buffer (marker-buffer marker)
-      (save-excursion
-        (save-restriction
-          (widen)
-          (goto-char marker)
-          (org-back-to-heading t)
-          (let ((end (save-excursion (org-end-of-subtree t) (point))))
-            (if (re-search-forward my/org-wait-state-timestamp-regexp end t)
-                (org-time-string-to-time (match-string 1))
-              nil)))))))
-
-(defun my/org-agenda-cmp-wait-timestamp (a b)
-  "Compare WAIT timestamps so oldest WAIT appears first (longest wait at top).
-Used with org-agenda-sorting-strategy 'user-defined-down."
-  (let* ((marker-a (get-text-property 0 'org-marker a))
-         (marker-b (get-text-property 0 'org-marker b))
-         (time-a (my/org-get-wait-timestamp marker-a))
-         (time-b (my/org-get-wait-timestamp marker-b)))
-    (cond
-     ;; If both have timestamps, older (smaller) timestamp should come first
-     ((and time-a time-b)
-      (cond ((time-less-p time-a time-b) +1)  ; a is older, should come first
-            ((time-less-p time-b time-a) -1)  ; b is older, should come first
-            (t nil)))
-     ;; Items with timestamps come before items without
-     (time-a +1)
-     (time-b -1)
-     ;; Neither has timestamp
-     (t nil))))
-
-(defun my/org-get-wait-days ()
-  "Get the number of days since current entry entered WAIT state.
-Must be called with point at the entry. Returns nil if no WAIT timestamp found."
-  (save-excursion
-    (save-restriction
-      (widen)
-      (org-back-to-heading t)
-      (let ((end (save-excursion (org-end-of-subtree t) (point))))
-        (if (re-search-forward my/org-wait-state-timestamp-regexp end t)
-            (let* ((wait-time (org-time-string-to-time (match-string 1)))
-                   (now (current-time))
-                   (diff (time-subtract now wait-time)))
-              (floor (/ (float-time diff) 86400)))  ; seconds per day
-          nil)))))
-
-(defun my/org-agenda-format-wait-prefix (parent-width)
-  "Format prefix showing days waiting and parent name.
-PARENT-WIDTH is the max width for the parent name."
-  (let ((days (my/org-get-wait-days))
-        (parent (my/org-agenda-format-parent parent-width)))
-    (if days
-        (format "%3dd  %s" days parent)
-      (format "  ?  %s" parent))))
-
 (defun my/org-agenda-format-scheduled-deadline ()
   "Format the scheduled or deadline date for agenda prefix.
 Shows 'S:' for scheduled or 'D:' for deadline, followed by relative days."
@@ -418,6 +354,37 @@ Used with org-agenda-sorting-strategy 'user-defined-down."
      (time-a +1)
      (time-b -1)
      (t nil))))
+
+;;; WAIT State (uses state change helpers above)
+
+(defun my/org-agenda-cmp-wait-timestamp (a b)
+  "Compare state change timestamps so oldest appears first (longest wait at top).
+Used with org-agenda-sorting-strategy 'user-defined-down."
+  (let* ((marker-a (get-text-property 0 'org-marker a))
+         (marker-b (get-text-property 0 'org-marker b))
+         (time-a (my/org-get-state-change-time marker-a))
+         (time-b (my/org-get-state-change-time marker-b)))
+    (cond
+     ;; If both have timestamps, older (smaller) timestamp should come first
+     ((and time-a time-b)
+      (cond ((time-less-p time-a time-b) +1)  ; a is older, should come first
+            ((time-less-p time-b time-a) -1)  ; b is older, should come first
+            (t nil)))
+     ;; Items with timestamps come before items without
+     (time-a +1)
+     (time-b -1)
+     ;; Neither has timestamp
+     (t nil))))
+
+(defun my/org-agenda-format-wait-prefix (parent-width)
+  "Format prefix showing days waiting and parent name.
+PARENT-WIDTH is the max width for the parent name."
+  (let* ((state-change (my/org-get-recent-state-change))
+         (days (when state-change (plist-get state-change :days)))
+         (parent (my/org-agenda-format-parent parent-width)))
+    (if days
+        (format "%3dd  %s" days parent)
+      (format "  ?  %s" parent))))
 
 
 (defun my/org-sparse-not-done-by-tag (tag)
