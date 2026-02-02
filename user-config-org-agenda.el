@@ -1,3 +1,5 @@
+(define-key org-mode-map (kbd "C-c C-/") #'my/org-sparse-not-done-by-tag)
+
 (setq org-agenda-files '("~/Dropbox/gtd/inbox.org"
                          "~/Dropbox/gtd/gtd.org"
                          "~/Dropbox/gtd/tickler.org"))
@@ -294,3 +296,12 @@ Does not skip scheduled items."
                              org-deadline-warning-days)))
         (when (> days-until warning-days)
           (org-end-of-subtree t))))))
+
+
+(defun my/org-sparse-not-done-by-tag (tag)
+  "Show all not-done tasks matching tag as a sparse tree."
+  (interactive
+   (list (completing-read "Tag: " (org-global-tags-completion-table))))
+  (org-match-sparse-tree
+   nil
+   (format "TODO={%s}&+%s" org-not-done-regexp tag)))
