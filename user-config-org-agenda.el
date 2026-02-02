@@ -122,15 +122,23 @@ Uses `org-log-beginning' to find/create the LOGBOOK drawer and
           (org-agenda-sorting-strategy '(user-defined-down))
           (org-agenda-cmp-user-defined #'my/org-agenda-cmp-wait-timestamp)))
         ("u" "Untagged tasks" tags-todo "-{.*}")
+        ("r" "Recent state changes" tags "+TODO={.+}|+DONE={.+}"
+         ((org-agenda-overriding-header "State changes (last 7 days)")
+          (org-agenda-prefix-format "%-48:(my/org-agenda-format-state-change-prefix 20)")
+          (org-agenda-todo-keyword-format "")
+          (org-agenda-skip-function #'my/org-agenda-skip-no-recent-state-change)
+          (org-agenda-sorting-strategy '(user-defined-down))
+          (org-agenda-cmp-user-defined #'my/org-agenda-cmp-state-change-time)))
         ))
 
 (defun my/org-agenda-format-parent (n)
-  ;; (s-truncate n (org-format-outline-path (org-get-outline-path)))
+  "Return parent heading truncated to N chars, or empty string if no parent."
   (save-excursion
     (save-restriction
       (widen)
-      (org-up-heading-safe)
-      (s-truncate n (org-get-heading t t)))))
+      (if (org-up-heading-safe)
+          (s-truncate n (org-get-heading t t))
+        ""))))
 
 (defun my/org-get-parent-priority (marker)
   "Go to the marker, move up to parent, and return its numeric priority.
@@ -320,6 +328,96 @@ Does not skip scheduled items."
                              org-deadline-warning-days)))
         (when (> days-until warning-days)
           (org-end-of-subtree t))))))
+
+;;; Recent State Changes
+
+(defconst my/org-state-change-regexp
+  "^[ \t]*- State \"\\([^\"]+\\)\"[ \t]+from[ \t]+\\(?:\"\\([^\"]*\\)\"[ \t]*\\)?\\[\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}[^]]*\\)\\]"
+  "Regexp matching LOGBOOK state change entries.
+Group 1: to-state, Group 2: from-state (may be nil or empty), Group 3: timestamp.")
+
+(defun my/org-get-recent-state-change ()
+  "Get the most recent state change from LOGBOOK at current entry.
+Returns plist (:from FROM-STATE :to TO-STATE :time TIME-VALUE :days DAYS-AGO) or nil.
+FROM-STATE will be \"NEW\" if the original from-state was empty or missing."
+  (save-excursion
+    (save-restriction
+      (widen)
+      (org-back-to-heading t)
+      (let ((logbook-end (save-excursion
+                           (when (re-search-forward ":LOGBOOK:" (org-entry-end-position) t)
+                             (re-search-forward ":END:" nil t)))))
+        (when (and logbook-end
+                   (re-search-forward my/org-state-change-regexp logbook-end t))
+          (let* ((to-state (match-string 1))
+                 (from-state-raw (match-string 2))
+                 (from-state (if (or (null from-state-raw)
+                                     (string-empty-p from-state-raw))
+                                 "NEW"
+                               from-state-raw))
+                 (timestamp-str (match-string 3))
+                 (change-time (org-time-string-to-time timestamp-str))
+                 (now (current-time))
+                 (diff (time-subtract now change-time))
+                 (days-ago (floor (/ (float-time diff) 86400))))
+            (list :from from-state
+                  :to to-state
+                  :time change-time
+                  :days days-ago)))))))
+
+(defun my/org-agenda-skip-no-recent-state-change ()
+  "Skip entries without state changes in the last 7 days."
+  (let ((state-change (my/org-get-recent-state-change)))
+    (if (and state-change
+             (<= (plist-get state-change :days) 7))
+        nil  ; Don't skip - show this entry
+      (org-end-of-subtree t))))
+
+(defun my/org-agenda-format-state-change-prefix (parent-width)
+  "Format prefix showing project, state transition, and days ago.
+PARENT-WIDTH is the max width for the parent/project name.
+Format: PROJECT | FROM → TO  Xd"
+  (let* ((state-change (my/org-get-recent-state-change))
+         (parent (my/org-agenda-format-parent parent-width)))
+    (if state-change
+        (let ((from (plist-get state-change :from))
+              (to (plist-get state-change :to))
+              (days (plist-get state-change :days)))
+          (format "%s | %s → %-4s %2dd"
+                  (s-pad-right parent-width " " parent)
+                  (s-pad-left 4 " " from)
+                  to
+                  days))
+      (format "%s |" (s-pad-right parent-width " " parent)))))
+
+(defun my/org-get-state-change-time (marker)
+  "Get the time value of the most recent state change at MARKER."
+  (if (not marker)
+      nil
+    (with-current-buffer (marker-buffer marker)
+      (save-excursion
+        (save-restriction
+          (widen)
+          (goto-char marker)
+          (let ((state-change (my/org-get-recent-state-change)))
+            (when state-change
+              (plist-get state-change :time))))))))
+
+(defun my/org-agenda-cmp-state-change-time (a b)
+  "Sort by state change time, most recent first.
+Used with org-agenda-sorting-strategy 'user-defined-down."
+  (let* ((marker-a (get-text-property 0 'org-marker a))
+         (marker-b (get-text-property 0 'org-marker b))
+         (time-a (my/org-get-state-change-time marker-a))
+         (time-b (my/org-get-state-change-time marker-b)))
+    (cond
+     ((and time-a time-b)
+      (cond ((time-less-p time-b time-a) +1)  ; a is more recent
+            ((time-less-p time-a time-b) -1)  ; b is more recent
+            (t nil)))
+     (time-a +1)
+     (time-b -1)
+     (t nil))))
 
 
 (defun my/org-sparse-not-done-by-tag (tag)
