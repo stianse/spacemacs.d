@@ -1,4 +1,4 @@
-(define-key org-mode-map (kbd "C-c C-/") #'my/org-sparse-not-done-by-tag)
+;; (define-key spacemacs-org-mode-map (kbd "C-c C-/") #'my/org-sparse-not-done-by-tag)
 
 (setq org-agenda-files '("~/Dropbox/gtd/inbox.org"
                          "~/Dropbox/gtd/gtd.org"
