@@ -753,4 +753,13 @@ advised functions."
   (advice-add 'find-file-noselect :around #'my/find-file-literally-around)
   (advice-add 'find-file :around #'my/find-file-literally-around)
   (advice-add 'find-file-other-window :around #'my/find-file-literally-around)
-  (advice-add 'find-file-other-frame :around #'my/find-file-literally-around))
+  (advice-add 'find-file-other-frame :around #'my/find-file-literally-around)
+
+
+  (defun my/browse-current-file ()
+    "Open current file in browser via shell command, bypassing snap restrictions."
+    (interactive)
+    (let ((file (buffer-file-name)))
+      (unless file (error "Buffer has no file"))
+      (start-process "browse-file" nil "google-chrome" file)))
+  )
