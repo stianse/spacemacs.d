@@ -625,6 +625,7 @@ Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
   (load-file (concat dotspacemacs-directory "user-config-org-agenda.el"))
+  (load-file (concat dotspacemacs-directory "user-config-kb-meeting-capture.el"))
 
   ;; Re-assing to something else than "fd", which is super annoying
   (setq-default evil-escape-key-sequence ".,")
